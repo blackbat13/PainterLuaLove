@@ -13,7 +13,7 @@ function love.load()
         angle = 0,
         drawable = love.graphics.newImage("images/blue.png"),
         name = "Blue",
-        color = {red = 33, green = 132, blue = 211},
+        color = {33, 132, 211, 255},
         keys = {left = "q", right = "e", power = "w"},
         velocity = 10,
         radius = 20,
@@ -28,8 +28,8 @@ function love.load()
         y = Const.margin,
         angle = 0,
         drawable = love.graphics.newImage("images/red.png"),
-        name = "Blue",
-        color = {red = 221, green = 78, blue = 84},
+        name = "Red",
+        color = {221, 78, 84, 255},
         keys = {left = "i", right = "p", power = "o"},
         velocity = 20,
         radius = 12,
@@ -44,8 +44,8 @@ function love.load()
         y = Const.height - Const.margin,
         angle = 0,
         drawable = love.graphics.newImage("images/green.png"),
-        name = "Blue",
-        color = {red = 73, green = 180, blue = 126},
+        name = "Green",
+        color = {73, 180, 126, 255},
         keys = {left = "left", right = "right", power = "up"},
         velocity = 10,
         radius = 20,
@@ -60,8 +60,8 @@ function love.load()
         y = Const.height - Const.margin,
         angle = 0,
         drawable = love.graphics.newImage("images/grey.png"),
-        name = "Blue",
-        color = {red = 147, green = 127, blue = 124},
+        name = "Grey",
+        color = {147, 127, 124, 255},
         keys = {left = "kp7", right = "kp9", power = "kp8"},
         velocity = 5,
         radius = 40,
@@ -75,8 +75,17 @@ function love.load()
 
     Timer = {elapsed = 0, value = 60}
 
-    Fonts = {timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50)}
+    Fonts = {
+        timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50), 
+        results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
+        winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110)
+    }
 
+    GameStateEnum = {Menu = 0, Playing = 1, End = 2}
+
+    GameState = GameStateEnum.Playing
+
+    Winner = ""
 end
 
 function love.draw()
@@ -87,6 +96,14 @@ function love.draw()
 
     love.graphics.setColor(love.math.colorFromBytes(235, 238, 11))
     DrawCenteredText(Const.width / 2, Const.margin, Timer.value, Fonts.timer)
+
+    if GameState == GameStateEnum.End then
+        for i = 1, #(Players) do
+            DrawCenteredText(Const.width / 2, Const.margin * 2 * (i + 1), string.format("%s: %.2f%%", Players[i].name, Players[i].percent), Fonts.results)
+        end
+        
+        DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
+    end
 end
 
 function DrawCenteredText(x, y, text, font)
@@ -102,11 +119,13 @@ function DrawPlayers()
 end
 
 function love.update(dt)
-    for i = 1, #(Players) do
-        UpdatePlayer(Players[i], dt)
-    end
+    if GameState == GameStateEnum.Playing then
+        for i = 1, #(Players) do
+            UpdatePlayer(Players[i], dt)
+        end
 
-    UpdateTimer(dt)
+        UpdateTimer(dt)
+    end
 end
 
 function UpdatePlayer(player, dt)
@@ -127,7 +146,7 @@ function UpdatePlayer(player, dt)
     end
 
     love.graphics.setCanvas(ColorCanvas)
-    love.graphics.setColor(love.math.colorFromBytes(player.color.red, player.color.green, player.color.blue))
+    love.graphics.setColor(love.math.colorFromBytes(player.color))
     love.graphics.circle("fill", player.x, player.y, player.radius)
     love.graphics.setCanvas()
 
@@ -143,6 +162,34 @@ function UpdateTimer(dt)
     if Timer.elapsed >= 1 then
         Timer.value = Timer.value - 1
         Timer.elapsed = Timer.elapsed - 1
+    end
+
+    if Timer.value == 0 then
+        GameState = GameStateEnum.End
+        ComputeWinner()
+    end
+end
+
+function ComputeWinner()
+    local imageData = ColorCanvas.newImageData(ColorCanvas)
+    for x = 1, Const.width do
+        for y = 1, Const.width do
+            local color = imageData:getPixel(x - 1, y - 1)
+            for i = 1, #(Players) do
+                if color == love.math.colorFromBytes(Players[i].color) then
+                    Players[i].pixels = Players[i].pixels + 1
+                end
+            end
+        end
+    end
+
+    local mx = 0
+    for i = 1, #(Players) do
+        Players[i].percent = (100 * Players[i].pixels) / (Const.width * Const.height)
+        if Players[i].percent > mx then
+            mx = Players[i].percent
+            Winner = Players[i].name
+        end
     end
 end
 
