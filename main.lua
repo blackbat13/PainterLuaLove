@@ -73,6 +73,10 @@ function love.load()
 
     Players = {Blue, Green, Red, Grey}
 
+    Timer = {elapsed = 0, value = 60}
+
+    Fonts = {timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50)}
+
 end
 
 function love.draw()
@@ -80,6 +84,15 @@ function love.draw()
     -- love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(ColorCanvas)
     DrawPlayers()
+
+    love.graphics.setColor(love.math.colorFromBytes(235, 238, 11))
+    DrawCenteredText(Const.width / 2, Const.margin, Timer.value, Fonts.timer)
+end
+
+function DrawCenteredText(x, y, text, font)
+	local textWidth  = font:getWidth(text)
+	local textHeight = font:getHeight()
+	love.graphics.print(text, font, x, y, 0, 1, 1, textWidth/2, textHeight/2)
 end
 
 function DrawPlayers()
@@ -92,6 +105,8 @@ function love.update(dt)
     for i = 1, #(Players) do
         UpdatePlayer(Players[i], dt)
     end
+
+    UpdateTimer(dt)
 end
 
 function UpdatePlayer(player, dt)
@@ -120,6 +135,14 @@ function UpdatePlayer(player, dt)
         if Players[i] ~= player and Distance(Players[i], player) < 20 then
             player.angle = (player.angle + 180) % 360
         end
+    end
+end
+
+function UpdateTimer(dt)
+    Timer.elapsed = Timer.elapsed + dt
+    if Timer.elapsed >= 1 then
+        Timer.value = Timer.value - 1
+        Timer.elapsed = Timer.elapsed - 1
     end
 end
 
