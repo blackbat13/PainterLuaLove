@@ -77,7 +77,7 @@ end
 
 function love.draw()
     love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.setBlendMode("alpha", "premultiplied")
+    -- love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(ColorCanvas)
     DrawPlayers()
 end
@@ -115,4 +115,14 @@ function UpdatePlayer(player, dt)
     love.graphics.setColor(love.math.colorFromBytes(player.color.red, player.color.green, player.color.blue))
     love.graphics.circle("fill", player.x, player.y, player.radius)
     love.graphics.setCanvas()
+
+    for i = 1, #(Players) do
+        if Players[i] ~= player and Distance(Players[i], player) < 20 then
+            player.angle = (player.angle + 180) % 360
+        end
+    end
+end
+
+function Distance(pl1, pl2)
+    return math.sqrt((pl1.x - pl2.x) * (pl1.x - pl2.x) + (pl1.y - pl2.y) * (pl1.y - pl2.y))
 end
