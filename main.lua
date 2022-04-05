@@ -1,5 +1,7 @@
 function love.load()
 
+    math.randomseed(os.time())
+
     Const = {width = 1000, height = 1000, margin = 50, framerate = 60}
 
     ColorCanvas = love.graphics.newCanvas(Const.width, Const.height)
@@ -76,16 +78,34 @@ function love.load()
     Timer = {elapsed = 0, value = 60}
 
     Fonts = {
-        timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50), 
+        timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50),
         results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
         winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110)
     }
 
-    GameStateEnum = {Menu = 0, Playing = 1, End = 2}
+    GameStateEnum = {Menu = 1, Playing = 2, End = 3}
 
     GameState = GameStateEnum.Playing
 
     Winner = ""
+
+    ItemTypeEnum = {Bomb = 1, Coin = 2, Gem = 3, Star = 4}
+
+    ItemTypes = {
+        {drawable = love.graphics.newImage("images/bomb.png"), type = ItemTypeEnum.Bomb},
+        {drawable = love.graphics.newImage("images/coin.png"), type = ItemTypeEnum.Coin},
+        -- {drawable = love.graphics.newImage("images/gem.png"), type = ItemTypeEnum.Gem},
+        {drawable = love.graphics.newImage("images/star.png"), type = ItemTypeEnum.Star}
+    }
+
+    Item = {
+        drawable = ItemTypes[1].drawable,
+        type = ItemTypes[1].type,
+        x = 0,
+        y = 0,
+        time = Const.framerate * 2,
+        active = false
+    }
 end
 
 function love.draw()
@@ -93,16 +113,11 @@ function love.draw()
     -- love.graphics.setBlendMode("alpha", "premultiplied")
     love.graphics.draw(ColorCanvas)
     DrawPlayers()
-
-    love.graphics.setColor(love.math.colorFromBytes(235, 238, 11))
-    DrawCenteredText(Const.width / 2, Const.margin, Timer.value, Fonts.timer)
-
+    DrawItem()
+    DrawTimer()
+    
     if GameState == GameStateEnum.End then
-        for i = 1, #(Players) do
-            DrawCenteredText(Const.width / 2, Const.margin * 2 * (i + 1), string.format("%s: %.2f%%", Players[i].name, Players[i].percent), Fonts.results)
-        end
-        
-        DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
+        DrawResults()
     end
 end
 
@@ -113,9 +128,31 @@ function DrawCenteredText(x, y, text, font)
 end
 
 function DrawPlayers()
+    love.graphics.setColor(1, 1, 1, 1)
     for i = 1, #(Players) do
         love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(Players[i].angle), 1, 1, 20, 20)
     end
+end
+
+function DrawItem()
+    love.graphics.setColor(1, 1, 1, 1)
+    if Item.active then
+        love.graphics.draw(Item.drawable, Item.x, Item.y, 0, 1, 1, 35, 35)
+    end
+end
+
+function DrawTimer()
+    love.graphics.setColor(love.math.colorFromBytes(235, 238, 11))
+    DrawCenteredText(Const.width / 2, Const.margin, Timer.value, Fonts.timer)
+end
+
+function DrawResults()
+    love.graphics.setColor(love.math.colorFromBytes(235, 238, 11))
+    for i = 1, #(Players) do
+        DrawCenteredText(Const.width / 2, Const.margin * 2 * (i + 1), string.format("%s: %.2f%%", Players[i].name, Players[i].percent), Fonts.results)
+    end
+
+    DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
 end
 
 function love.update(dt)
@@ -125,6 +162,7 @@ function love.update(dt)
         end
 
         UpdateTimer(dt)
+        UpdateItem(dt)
     end
 end
 
@@ -155,6 +193,30 @@ function UpdatePlayer(player, dt)
             player.angle = (player.angle + 180) % 360
         end
     end
+
+    if Item.active and Distance(Item, player) < 55 then
+        if Item.type == ItemTypeEnum.Bomb then
+            love.graphics.setCanvas(ColorCanvas)
+            love.graphics.setColor(love.math.colorFromBytes(player.color))
+            love.graphics.circle("fill", player.x, player.y, 250)
+            love.graphics.setCanvas()
+        end
+        if Item.type == ItemTypeEnum.Star then
+            love.graphics.setCanvas(ColorCanvas)
+            love.graphics.setColor(love.math.colorFromBytes(player.color))
+            for _ = 1, 20 do
+                love.graphics.circle("fill", math.random(0, Const.width - 1), math.random(0, Const.height - 1), 50)
+            end
+
+            love.graphics.setCanvas()
+        end
+        if Item.type == ItemTypeEnum.Coin then
+            player.radius = player.radius + 5
+        end
+
+        Item.active = false
+        Item.time = math.random(Const.framerate, Const.framerate * 5)
+    end
 end
 
 function UpdateTimer(dt)
@@ -168,6 +230,24 @@ function UpdateTimer(dt)
         GameState = GameStateEnum.End
         ComputeWinner()
     end
+end
+
+function UpdateItem(dt)
+    if not Item.active then
+        Item.time = Item.time - dt * Const.framerate
+        if Item.time <= 0 then
+            SpawnItem()
+        end
+    end
+end
+
+function SpawnItem()
+    local itemId = math.random(1, #(ItemTypes))
+    Item.active = true
+    Item.drawable = ItemTypes[itemId].drawable
+    Item.type = ItemTypes[itemId].type
+    Item.x = math.random(Const.margin, Const.width - Const.margin)
+    Item.y = math.random(Const.margin, Const.height - Const.margin)
 end
 
 function ComputeWinner()
