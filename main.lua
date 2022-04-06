@@ -144,6 +144,19 @@ function InitButtons()
             hover = love.graphics.newImage("images/button_hover.png")
         }
     }
+
+    SoundButton = {
+        x = Const.width - 50,
+        y = 50,
+        xOffset = 25,
+        yOffset = 25,
+        width = 50,
+        height = 50,
+        drawable = {
+            on = love.graphics.newImage("images/sound_on.png"),
+            off = love.graphics.newImage("images/sound_off.png")
+        }
+    }
 end
 
 ------------ DRAW ------------
@@ -165,6 +178,17 @@ function love.draw()
     if GameState == GameStateEnum.End then
         DrawResults()
         DrawStartButton()
+    end
+
+   DrawSoundButton() 
+end
+
+function DrawSoundButton()
+    love.graphics.setColor(1, 1, 1, 1)
+    if Settings.sounds then
+        love.graphics.draw(SoundButton.drawable.on, SoundButton.x, SoundButton.y, 0, 1, 1, SoundButton.xOffset, SoundButton.yOffset)
+    else
+        love.graphics.draw(SoundButton.drawable.off, SoundButton.x, SoundButton.y, 0, 1, 1, SoundButton.xOffset, SoundButton.yOffset)
     end
 end
 
@@ -229,6 +253,7 @@ function DrawMenu()
     DrawCenteredText(Const.width / 2, Const.margin + 6 * textMargin + 3 * paragraphMargin + 2 * textMargin, "Power: up", Fonts.menu)
 
     DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin, "Start: space", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin + 1 * textMargin, "Mute sound: S", Fonts.menu)
 end
 
 function DrawStartButton()
@@ -327,11 +352,19 @@ function love.keypressed(key, scancode, isrepeat)
     if (GameState == GameStateEnum.End or GameState == GameStateEnum.Menu) and key == "space" then
         Reset()
     end
+
+    if key == "s" then
+        Settings.sounds = not Settings.sounds
+    end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
     if (GameState == GameStateEnum.Menu or GameState == GameStateEnum.End) and PointInRect(x, y, StartButton) then
         Reset()
+    end
+
+    if PointInRect(x, y, SoundButton) then
+        Settings.sounds = not Settings.sounds
     end
 end
 
