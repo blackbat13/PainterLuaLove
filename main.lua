@@ -241,67 +241,12 @@ function love.update(dt)
 end
 
 function UpdatePlayer(player, dt)
-    if love.keyboard.isDown(player.keys.left) then
-        player.angle = (player.angle + player.velocity / 2) % 360
-    end
-    if love.keyboard.isDown(player.keys.right) then
-        player.angle = (player.angle - player.velocity / 2) % 360
-    end
-
-    player.x = player.x + math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
-    player.y = player.y + math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
-
-    if player.x < 0 or player.x >= Const.width or player.y < 0 or player.y >= Const.height then
-        player.x = player.x - math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
-        player.y = player.y - math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
-        player.angle = (player.angle + math.random(100, 250)) % 360
-        if Settings.sounds then
-            love.audio.play(Sounds.impact)
-        end
-    end
-
-    love.graphics.setCanvas(ColorCanvas)
-    love.graphics.setColor(love.math.colorFromBytes(player.color))
-    love.graphics.circle("fill", player.x, player.y, player.radius)
-    love.graphics.setCanvas()
-
-    for i = 1, #(Players) do
-        if Players[i] ~= player and Distance(Players[i], player) < 20 then
-            player.angle = (player.angle + 180) % 360
-        end
-    end
+    MovePlayer(player, dt)
+    CheckPlayerCollisions(player, dt)
+    LeavePlayerTrace(player)
 
     if Item.active and Distance(Item, player) < 55 then
-        if Item.type == ItemTypeEnum.Bomb then
-            love.graphics.setCanvas(ColorCanvas)
-            love.graphics.setColor(love.math.colorFromBytes(player.color))
-            love.graphics.circle("fill", player.x, player.y, 250)
-            love.graphics.setCanvas()
-            if Settings.sounds then
-                love.audio.play(Sounds.item.bomb)
-            end
-        end
-        if Item.type == ItemTypeEnum.Star then
-            love.graphics.setCanvas(ColorCanvas)
-            love.graphics.setColor(love.math.colorFromBytes(player.color))
-            for _ = 1, 20 do
-                love.graphics.circle("fill", math.random(0, Const.width - 1), math.random(0, Const.height - 1), 50)
-            end
-
-            love.graphics.setCanvas()
-            if Settings.sounds then
-                love.audio.play(Sounds.item.star)
-            end
-        end
-        if Item.type == ItemTypeEnum.Coin then
-            player.radius = player.radius + 5
-            if Settings.sounds then
-                love.audio.play(Sounds.item.coin)
-            end
-        end
-
-        Item.active = false
-        Item.time = math.random(Const.framerate, Const.framerate * 5)
+        PickItem(Item, player)
     end
 end
 
@@ -450,4 +395,75 @@ end
 
 function PointInRect(px, py, rect)
     return px >= (rect.x - rect.xOffset) and px <= (rect.x - rect.xOffset + rect.width) and py >= (rect.y - rect.yOffset) and py <= (rect.y - rect.yOffset + rect.width)
+end
+
+function MovePlayer(player, dt)
+    if love.keyboard.isDown(player.keys.left) then
+        player.angle = (player.angle + player.velocity / 2) % 360
+    end
+    if love.keyboard.isDown(player.keys.right) then
+        player.angle = (player.angle - player.velocity / 2) % 360
+    end
+
+    player.x = player.x + math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
+    player.y = player.y + math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
+end
+
+function CheckPlayerCollisions(player, dt)
+    if player.x < 0 or player.x >= Const.width or player.y < 0 or player.y >= Const.height then
+        player.x = player.x - math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
+        player.y = player.y - math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
+        player.angle = (player.angle + math.random(100, 250)) % 360
+        if Settings.sounds then
+            love.audio.play(Sounds.impact)
+        end
+    end
+
+    for i = 1, #(Players) do
+        if Players[i] ~= player and Distance(Players[i], player) < 20 then
+            player.angle = (player.angle + 180) % 360
+        end
+    end
+end
+
+function LeavePlayerTrace(player)
+    love.graphics.setCanvas(ColorCanvas)
+    love.graphics.setColor(love.math.colorFromBytes(player.color))
+    love.graphics.circle("fill", player.x, player.y, player.radius)
+    love.graphics.setCanvas()
+end
+
+function PickItem(item, player)
+    if item.type == ItemTypeEnum.Bomb then
+        love.graphics.setCanvas(ColorCanvas)
+        love.graphics.setColor(love.math.colorFromBytes(player.color))
+        love.graphics.circle("fill", player.x, player.y, 250)
+        love.graphics.setCanvas()
+        if Settings.sounds then
+            love.audio.play(Sounds.item.bomb)
+        end
+    end
+
+    if item.type == ItemTypeEnum.Star then
+        love.graphics.setCanvas(ColorCanvas)
+        love.graphics.setColor(love.math.colorFromBytes(player.color))
+        for _ = 1, 20 do
+            love.graphics.circle("fill", math.random(0, Const.width - 1), math.random(0, Const.height - 1), 50)
+        end
+
+        love.graphics.setCanvas()
+        if Settings.sounds then
+            love.audio.play(Sounds.item.star)
+        end
+    end
+
+    if item.type == ItemTypeEnum.Coin then
+        player.radius = player.radius + 5
+        if Settings.sounds then
+            love.audio.play(Sounds.item.coin)
+        end
+    end
+
+    item.active = false
+    item.time = math.random(Const.framerate, Const.framerate * 5)
 end
