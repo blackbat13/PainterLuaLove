@@ -94,7 +94,7 @@ function InitItem()
     ItemTypes = {
         {drawable = love.graphics.newImage("images/bomb.png"), type = ItemTypeEnum.Bomb},
         {drawable = love.graphics.newImage("images/coin.png"), type = ItemTypeEnum.Coin},
-        -- {drawable = love.graphics.newImage("images/gem.png"), type = ItemTypeEnum.Gem},
+        {drawable = love.graphics.newImage("images/gem.png"), type = ItemTypeEnum.Gem},
         {drawable = love.graphics.newImage("images/star.png"), type = ItemTypeEnum.Star}
     }
 
@@ -127,7 +127,8 @@ function InitSounds()
         item = {
             coin = love.audio.newSource("sounds/coin.ogg", "static"),
             bomb = love.audio.newSource("sounds/explosion.ogg", "static"),
-            star = love.audio.newSource("sounds/star.ogg", "static")
+            star = love.audio.newSource("sounds/star.ogg", "static"),
+            gem = love.audio.newSource("sounds/gem.ogg", "static")
         },
         number = {
             love.audio.newSource("sounds/one.ogg", "static"),
@@ -143,7 +144,8 @@ function InitSounds()
         },
         timeOver = love.audio.newSource("sounds/time_over.ogg", "static"),
         impact = love.audio.newSource("sounds/impact.ogg", "static"),
-        hurryUp = love.audio.newSource("sounds/hurry_up.ogg", "static")
+        hurryUp = love.audio.newSource("sounds/hurry_up.ogg", "static"),
+        power = love.audio.newSource("sounds/power.ogg", "static")
     }
 end
 
@@ -315,7 +317,6 @@ function UpdatePlayerPower(player, dt)
     if not player.power then
         player.powerTimer = player.powerTimer + dt
         if player.powerTimer >= player.powerTimeout then
-            player.powerTimer = 0
             player.power = true
         end
     end
@@ -546,6 +547,13 @@ function PickItem(item, player)
         end
     end
 
+    if item.type == ItemTypeEnum.Gem then
+        player.power = true
+        if Settings.sounds then
+            love.audio.play(Sounds.item.gem)
+        end
+    end
+
     item.active = false
     item.time = math.random(Const.framerate, Const.framerate * 5)
 end
@@ -579,4 +587,9 @@ function UsePower(player)
     end
 
     player.power = false
+    player.powerTimer = 0
+
+    if Settings.sounds then
+        love.audio.play(Sounds.power)
+    end
 end
