@@ -27,6 +27,10 @@ end
 
 function InitPlayers()
     Blue = {
+        xOffset = 20,
+        yOffset = 20,
+        width = 40,
+        height = 40,
         drawable = love.graphics.newImage("images/blue.png"),
         name = "Blue",
         color = {33, 132, 211, 255},
@@ -34,6 +38,10 @@ function InitPlayers()
     }
 
     Red = {
+        xOffset = 20,
+        yOffset = 20,
+        width = 40,
+        height = 40,
         drawable = love.graphics.newImage("images/red.png"),
         name = "Red",
         color = {221, 78, 84, 255},
@@ -41,6 +49,10 @@ function InitPlayers()
     }
 
     Green = {
+        xOffset = 20,
+        yOffset = 20,
+        width = 40,
+        height = 40,
         drawable = love.graphics.newImage("images/green.png"),
         name = "Green",
         color = {73, 180, 126, 255},
@@ -48,6 +60,10 @@ function InitPlayers()
     }
 
     Grey = {
+        xOffset = 18,
+        yOffset = 18,
+        width = 36,
+        height = 36,
         drawable = love.graphics.newImage("images/grey.png"),
         name = "Grey",
         color = {147, 127, 124, 255},
@@ -61,7 +77,7 @@ function InitFonts()
     Fonts = {
         timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50),
         results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
-        winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110),
+        winner = love.graphics.newFont("fonts/kenney_bold.ttf", 105),
         button = love.graphics.newFont("fonts/kenney_bold.ttf", 25),
         menu = love.graphics.newFont("fonts/kenney_future_square.ttf", 40)
     }
@@ -205,7 +221,7 @@ function DrawPlayers()
             love.graphics.circle("fill", Players[i].x, Players[i].y, 25)
         end
 
-        love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(Players[i].angle), 1, 1, 20, 20)
+        love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(Players[i].angle), 1, 1, Players[i].xOffset, Players[i].yOffset)
     end
 end
 
