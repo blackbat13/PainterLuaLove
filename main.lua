@@ -7,6 +7,7 @@ function love.load()
     Const = {width = 1000, height = 1000, margin = 50, framerate = 60}
     Timer = {elapsed = 0, value = 60}
     Winner = ""
+    Settings = {sounds = true, music = true}
 
     InitColorCanvas()
     InitPlayers()
@@ -14,6 +15,7 @@ function love.load()
     InitGameState()
     InitItem()
     InitMusic()
+    InitSounds()
 end
 
 function InitColorCanvas()
@@ -138,6 +140,30 @@ function InitMusic()
     love.audio.play(Music.menu)
 end
 
+function InitSounds()
+    Sounds = {
+        item = {
+            coin = love.audio.newSource("sounds/coin.ogg", "static"),
+            bomb = love.audio.newSource("sounds/explosion.ogg", "static"),
+            star = love.audio.newSource("sounds/star.ogg", "static")
+        },
+        number = {
+            love.audio.newSource("sounds/one.ogg", "static"),
+            love.audio.newSource("sounds/two.ogg", "static"),
+            love.audio.newSource("sounds/three.ogg", "static"),
+            love.audio.newSource("sounds/four.ogg", "static"),
+            love.audio.newSource("sounds/five.ogg", "static"),
+            love.audio.newSource("sounds/six.ogg", "static"),
+            love.audio.newSource("sounds/seven.ogg", "static"),
+            love.audio.newSource("sounds/eight.ogg", "static"),
+            love.audio.newSource("sounds/nine.ogg", "static")
+        },
+        timeOver = love.audio.newSource("sounds/time_over.ogg", "static"),
+        impact = love.audio.newSource("sounds/impact.ogg", "static"),
+        hurryUp = love.audio.newSource("sounds/hurry_up.ogg", "static")
+    }
+end
+
 ------------ DRAW ------------
 
 function love.draw()
@@ -215,6 +241,9 @@ function UpdatePlayer(player, dt)
         player.x = player.x - math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
         player.y = player.y - math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
         player.angle = (player.angle + math.random(100, 250)) % 360
+        if Settings.sounds then
+            love.audio.play(Sounds.impact)
+        end
     end
 
     love.graphics.setCanvas(ColorCanvas)
@@ -234,6 +263,9 @@ function UpdatePlayer(player, dt)
             love.graphics.setColor(love.math.colorFromBytes(player.color))
             love.graphics.circle("fill", player.x, player.y, 250)
             love.graphics.setCanvas()
+            if Settings.sounds then
+                love.audio.play(Sounds.item.bomb)
+            end
         end
         if Item.type == ItemTypeEnum.Star then
             love.graphics.setCanvas(ColorCanvas)
@@ -243,9 +275,15 @@ function UpdatePlayer(player, dt)
             end
 
             love.graphics.setCanvas()
+            if Settings.sounds then
+                love.audio.play(Sounds.item.star)
+            end
         end
         if Item.type == ItemTypeEnum.Coin then
             player.radius = player.radius + 5
+            if Settings.sounds then
+                love.audio.play(Sounds.item.coin)
+            end
         end
 
         Item.active = false
@@ -258,11 +296,24 @@ function UpdateTimer(dt)
     if Timer.elapsed >= 1 then
         Timer.value = Timer.value - 1
         Timer.elapsed = Timer.elapsed - 1
+
+        if Settings.sounds then
+            if Timer.value == 20 then
+                love.audio.play(Sounds.hurryUp)
+            end
+
+            if Timer.value <= 9 and Timer.value >= 1 then
+                love.audio.play(Sounds.number[Timer.value])
+            end
+        end
     end
 
     if Timer.value == 0 then
         GameState = GameStateEnum.End
         love.audio.stop()
+        if Settings.sounds then
+            love.audio.play(Sounds.timeOver)
+        end
         love.audio.play(Music.results)
         ComputeWinner()
     end
