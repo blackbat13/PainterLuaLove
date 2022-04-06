@@ -1,14 +1,29 @@
+------------ INITIALIZATION ------------
+
 function love.load()
 
     math.randomseed(os.time())
 
     Const = {width = 1000, height = 1000, margin = 50, framerate = 60}
+    Timer = {elapsed = 0, value = 60}
+    Winner = ""
 
+    InitColorCanvas()
+    InitPlayers()
+    InitFonts()
+    InitGameState()
+    InitItem()
+    InitMusic()
+end
+
+function InitColorCanvas()
     ColorCanvas = love.graphics.newCanvas(Const.width, Const.height)
     love.graphics.setCanvas(ColorCanvas)
     love.graphics.clear()
     love.graphics.setCanvas()
+end
 
+function InitPlayers()
     Blue = {
         x = Const.margin,
         y = Const.margin,
@@ -74,21 +89,22 @@ function love.load()
     }
 
     Players = {Blue, Green, Red, Grey}
+end
 
-    Timer = {elapsed = 0, value = 60}
-
+function InitFonts()
     Fonts = {
         timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50),
         results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
         winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110)
     }
+end
 
+function InitGameState()
     GameStateEnum = {Menu = 1, Playing = 2, End = 3}
-
     GameState = GameStateEnum.Menu
+end
 
-    Winner = ""
-
+function InitItem()
     ItemTypeEnum = {Bomb = 1, Coin = 2, Gem = 3, Star = 4}
 
     ItemTypes = {
@@ -106,7 +122,9 @@ function love.load()
         time = Const.framerate * 2,
         active = false
     }
+end
 
+function InitMusic()
     Music = {
         menu = love.audio.newSource("music/menu.ogg", "stream"),
         game = love.audio.newSource("music/game.ogg", "stream"),
