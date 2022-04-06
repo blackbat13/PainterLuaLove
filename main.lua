@@ -85,7 +85,7 @@ function love.load()
 
     GameStateEnum = {Menu = 1, Playing = 2, End = 3}
 
-    GameState = GameStateEnum.Playing
+    GameState = GameStateEnum.Menu
 
     Winner = ""
 
@@ -106,6 +106,18 @@ function love.load()
         time = Const.framerate * 2,
         active = false
     }
+
+    Music = {
+        menu = love.audio.newSource("music/menu.ogg", "stream"),
+        game = love.audio.newSource("music/game.ogg", "stream"),
+        results = love.audio.newSource("music/results.ogg", "stream")
+    }
+
+    Music.menu:setLooping(true)
+    Music.game:setLooping(true)
+    Music.results:setLooping(true)
+
+    love.audio.play(Music.menu)
 end
 
 ------------ DRAW ------------
@@ -232,6 +244,8 @@ function UpdateTimer(dt)
 
     if Timer.value == 0 then
         GameState = GameStateEnum.End
+        love.audio.stop()
+        love.audio.play(Music.results)
         ComputeWinner()
     end
 end
@@ -336,4 +350,11 @@ function Reset()
     Item.active = false
 
     GameState = GameStateEnum.Playing
+
+    love.audio.stop()
+    love.audio.play(Music.game)
+
+    love.graphics.setCanvas(ColorCanvas)
+    love.graphics.clear()
+    love.graphics.setCanvas()
 end
