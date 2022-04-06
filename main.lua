@@ -1,7 +1,6 @@
 ------------ INITIALIZATION ------------
 
 function love.load()
-
     math.randomseed(os.time())
 
     Const = {width = 1000, height = 1000, margin = 50, framerate = 60}
@@ -357,7 +356,6 @@ end
 function Distance(pl1, pl2)
     return math.sqrt((pl1.x - pl2.x) * (pl1.x - pl2.x) + (pl1.y - pl2.y) * (pl1.y - pl2.y))
 end
-
 
 function Reset()
     for i = 1, #(Players) do
