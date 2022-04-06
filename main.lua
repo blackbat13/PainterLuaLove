@@ -16,6 +16,7 @@ function love.load()
     InitItem()
     InitMusic()
     InitSounds()
+    InitButtons()
 end
 
 function InitColorCanvas()
@@ -97,7 +98,8 @@ function InitFonts()
     Fonts = {
         timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50),
         results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
-        winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110)
+        winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110),
+        button = love.graphics.newFont("fonts/kenney_bold.ttf", 25)
     }
 end
 
@@ -165,6 +167,21 @@ function InitSounds()
     }
 end
 
+function InitButtons()
+    StartButton = {
+        x = Const.width / 2,
+        y = Const.height - 50,
+        xOffset = 190 /2,
+        yOffset = 49 / 2,
+        width = 190,
+        height = 49,
+        drawable = {
+            standard = love.graphics.newImage("images/button.png"),
+            hover = love.graphics.newImage("images/button_hover.png")
+        }
+    }
+end
+
 ------------ DRAW ------------
 
 function love.draw()
@@ -175,8 +192,13 @@ function love.draw()
     DrawItem()
     DrawTimer()
     
+    if GameState == GameStateEnum.Menu then
+        DrawStartButton()
+    end
+
     if GameState == GameStateEnum.End then
         DrawResults()
+        DrawStartButton()
     end
 end
 
@@ -212,6 +234,21 @@ function DrawResults()
     end
 
     DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
+end
+
+function DrawStartButton()
+    love.graphics.setColor(1, 1, 1, 1)
+
+    local mouseX, mouseY = love.mouse.getPosition()
+
+    if PointInRect(mouseX, mouseY, StartButton) then
+        love.graphics.draw(StartButton.drawable.hover, StartButton.x, StartButton.y, 0, 1, 1, StartButton.xOffset, StartButton.yOffset)
+        love.graphics.setColor(0, 0, 0, 1)
+        DrawCenteredText(StartButton.x, StartButton.y, "START", Fonts.button)
+    else
+        love.graphics.draw(StartButton.drawable.standard, StartButton.x, StartButton.y, 0, 1, 1, StartButton.xOffset, StartButton.yOffset)
+        DrawCenteredText(StartButton.x, StartButton.y, "START", Fonts.button)
+    end
 end
 
 ------------ UPDATE ------------
@@ -337,6 +374,12 @@ function love.keypressed(key, scancode, isrepeat)
     end
 end
 
+function love.mousepressed(x, y, button, istouch, presses)
+    if (GameState == GameStateEnum.Menu or GameState == GameStateEnum.End) and PointInRect(x, y, StartButton) then
+        Reset()
+    end
+end
+
 ------------ HELPERS ------------
 
 function SpawnItem()
@@ -427,4 +470,8 @@ function Reset()
     love.graphics.setCanvas(ColorCanvas)
     love.graphics.clear()
     love.graphics.setCanvas()
+end
+
+function PointInRect(px, py, rect)
+    return px >= (rect.x - rect.xOffset) and px <= (rect.x - rect.xOffset + rect.width) and py >= (rect.y - rect.yOffset) and py <= (rect.y - rect.yOffset + rect.width)
 end
