@@ -34,13 +34,7 @@ function InitPlayers()
         drawable = love.graphics.newImage("images/blue.png"),
         name = "Blue",
         color = {33, 132, 211, 255},
-        keys = {left = "q", right = "e", power = "w"},
-        velocity = 10,
-        radius = 20,
-        power = false,
-        powerTimeour = 45,
-        percent = 0,
-        pixels = 0
+        keys = {left = "q", right = "e", power = "w"}
     }
 
     Red = {
@@ -50,13 +44,7 @@ function InitPlayers()
         drawable = love.graphics.newImage("images/red.png"),
         name = "Red",
         color = {221, 78, 84, 255},
-        keys = {left = "i", right = "p", power = "o"},
-        velocity = 20,
-        radius = 12,
-        power = false,
-        powerTimeour = 5,
-        percent = 0,
-        pixels = 0
+        keys = {left = "i", right = "p", power = "o"}
     }
 
     Green = {
@@ -66,13 +54,7 @@ function InitPlayers()
         drawable = love.graphics.newImage("images/green.png"),
         name = "Green",
         color = {73, 180, 126, 255},
-        keys = {left = "left", right = "right", power = "up"},
-        velocity = 10,
-        radius = 20,
-        power = false,
-        powerTimeour = 30,
-        percent = 0,
-        pixels = 0
+        keys = {left = "z", right = "c", power = "x"}
     }
 
     Grey = {
@@ -82,13 +64,7 @@ function InitPlayers()
         drawable = love.graphics.newImage("images/grey.png"),
         name = "Grey",
         color = {147, 127, 124, 255},
-        keys = {left = "kp7", right = "kp9", power = "kp8"},
-        velocity = 5,
-        radius = 40,
-        power = false,
-        powerTimeour = 15,
-        percent = 0,
-        pixels = 0
+        keys = {left = ",", right = "/", power = "."}
     }
 
     Players = {Blue, Green, Red, Grey}
