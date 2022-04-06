@@ -187,6 +187,10 @@ end
 function DrawPlayers()
     love.graphics.setColor(1, 1, 1, 1)
     for i = 1, #(Players) do
+        if Players[i].power then
+            love.graphics.circle("fill", Players[i].x, Players[i].y, 25)
+        end
+
         love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(Players[i].angle), 1, 1, 20, 20)
     end
 end
@@ -242,11 +246,26 @@ end
 
 function UpdatePlayer(player, dt)
     MovePlayer(player, dt)
+    UpdatePlayerPower(player, dt)
     CheckPlayerCollisions(player, dt)
     LeavePlayerTrace(player)
 
     if Item.active and Distance(Item, player) < 55 then
         PickItem(Item, player)
+    end
+end
+
+function UpdatePlayerPower(player, dt)
+    if not player.power then
+        player.powerTimer = player.powerTimer + dt
+        if player.powerTimer >= player.powerTimeout then
+            player.powerTimer = 0
+            player.power = true
+        end
+    end
+
+    if player.power and love.keyboard.isDown(player.keys.power) then
+        UsePower(player)
     end
 end
 
@@ -466,4 +485,35 @@ function PickItem(item, player)
 
     item.active = false
     item.time = math.random(Const.framerate, Const.framerate * 5)
+end
+
+function UsePower(player)
+    if player.name == "Blue" then
+        love.graphics.setCanvas(ColorCanvas)
+        love.graphics.clear()
+        love.graphics.setCanvas()
+    end
+
+    if player.name == "Red" then
+        player.velocity = player.velocity + 5
+    end
+
+    if player.name == "Green" then
+        love.graphics.setCanvas(ColorCanvas)
+        
+        for _ = 1, 150 do
+            local index = math.random(1, #(Players))
+            love.graphics.setColor(love.math.colorFromBytes(Players[index].color))
+            love.graphics.circle("fill", math.random(0, Const.width - 1), math.random(0, Const.height - 1), 50)
+        end
+
+        love.graphics.setCanvas()
+    end
+
+    if player.name == "Grey" then
+        player.radius = player.radius + 15
+        player.velocity = player.velocity - 1
+    end
+
+    player.power = false
 end
