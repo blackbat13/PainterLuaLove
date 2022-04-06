@@ -156,7 +156,8 @@ function InitSounds()
             love.audio.newSource("sounds/six.ogg", "static"),
             love.audio.newSource("sounds/seven.ogg", "static"),
             love.audio.newSource("sounds/eight.ogg", "static"),
-            love.audio.newSource("sounds/nine.ogg", "static")
+            love.audio.newSource("sounds/nine.ogg", "static"),
+            love.audio.newSource("sounds/ten.ogg", "static")
         },
         timeOver = love.audio.newSource("sounds/time_over.ogg", "static"),
         impact = love.audio.newSource("sounds/impact.ogg", "static"),
@@ -302,7 +303,7 @@ function UpdateTimer(dt)
                 love.audio.play(Sounds.hurryUp)
             end
 
-            if Timer.value <= 9 and Timer.value >= 1 then
+            if Timer.value <= 10 and Timer.value >= 1 then
                 love.audio.play(Sounds.number[Timer.value])
             end
         end
