@@ -27,9 +27,6 @@ end
 
 function InitPlayers()
     Blue = {
-        x = Const.margin,
-        y = Const.margin,
-        angle = 0,
         drawable = love.graphics.newImage("images/blue.png"),
         name = "Blue",
         color = {33, 132, 211, 255},
@@ -37,9 +34,6 @@ function InitPlayers()
     }
 
     Red = {
-        x = Const.width - Const.margin,
-        y = Const.margin,
-        angle = 0,
         drawable = love.graphics.newImage("images/red.png"),
         name = "Red",
         color = {221, 78, 84, 255},
@@ -47,9 +41,6 @@ function InitPlayers()
     }
 
     Green = {
-        x = Const.margin,
-        y = Const.height - Const.margin,
-        angle = 0,
         drawable = love.graphics.newImage("images/green.png"),
         name = "Green",
         color = {73, 180, 126, 255},
@@ -57,13 +48,10 @@ function InitPlayers()
     }
 
     Grey = {
-        x = Const.width - Const.margin,
-        y = Const.height - Const.margin,
-        angle = 0,
         drawable = love.graphics.newImage("images/grey.png"),
         name = "Grey",
         color = {147, 127, 124, 255},
-        keys = {left = ",", right = "/", power = "."}
+        keys = {left = "left", right = "right", power = "up"}
     }
 
     Players = {Blue, Green, Red, Grey}
@@ -74,7 +62,8 @@ function InitFonts()
         timer = love.graphics.newFont("fonts/kenney_bold.ttf", 50),
         results = love.graphics.newFont("fonts/kenney_future_square.ttf", 60),
         winner = love.graphics.newFont("fonts/kenney_bold.ttf", 110),
-        button = love.graphics.newFont("fonts/kenney_bold.ttf", 25)
+        button = love.graphics.newFont("fonts/kenney_bold.ttf", 25),
+        menu = love.graphics.newFont("fonts/kenney_future_square.ttf", 40)
     }
 end
 
@@ -160,14 +149,16 @@ end
 ------------ DRAW ------------
 
 function love.draw()
-    love.graphics.setColor(1, 1, 1, 1)
-    -- love.graphics.setBlendMode("alpha", "premultiplied")
-    love.graphics.draw(ColorCanvas)
-    DrawPlayers()
-    DrawItem()
-    DrawTimer()
+    if GameState == GameStateEnum.Playing or GameState == GameStateEnum.End then
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.draw(ColorCanvas)
+        DrawPlayers()
+        DrawItem()
+        DrawTimer()
+    end
     
     if GameState == GameStateEnum.Menu then
+        DrawMenu()
         DrawStartButton()
     end
 
@@ -213,6 +204,31 @@ function DrawResults()
     end
 
     DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
+end
+
+function DrawMenu()
+    love.graphics.setColor(1,1,1,1)
+
+    local textMargin = 40
+    local paragraphMargin = 80
+
+    DrawCenteredText(Const.width / 2, Const.margin, "Blue", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 1 * textMargin, "Turn: Q/E", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 2 * textMargin, "Power: W", Fonts.menu)
+
+    DrawCenteredText(Const.width / 2, Const.margin + 2 * textMargin + paragraphMargin, "Red", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 2 * textMargin + paragraphMargin + 1 * textMargin, "Turn: I/P", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 2 * textMargin + paragraphMargin + 2 * textMargin, "Power: O", Fonts.menu)
+
+    DrawCenteredText(Const.width / 2, Const.margin + 4 * textMargin + 2 * paragraphMargin, "Green", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 4 * textMargin + 2 * paragraphMargin + 1 * textMargin, "Turn: Z/C", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 4 * textMargin + 2 * paragraphMargin + 2 * textMargin, "Power: X", Fonts.menu)
+
+    DrawCenteredText(Const.width / 2, Const.margin + 6 * textMargin + 3 * paragraphMargin, "Grey", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 6 * textMargin + 3 * paragraphMargin + 1 * textMargin, "Turn: left/right", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 6 * textMargin + 3 * paragraphMargin + 2 * textMargin, "Power: up", Fonts.menu)
+
+    DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin, "Start: space", Fonts.menu)
 end
 
 function DrawStartButton()
