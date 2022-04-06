@@ -108,6 +108,8 @@ function love.load()
     }
 end
 
+------------ DRAW ------------
+
 function love.draw()
     love.graphics.setColor(1, 1, 1, 1)
     -- love.graphics.setBlendMode("alpha", "premultiplied")
@@ -154,6 +156,8 @@ function DrawResults()
 
     DrawCenteredText(Const.width / 2, Const.margin * 2 * 7, string.format("%s wins!", Winner), Fonts.winner)
 end
+
+------------ UPDATE ------------
 
 function love.update(dt)
     if GameState == GameStateEnum.Playing then
@@ -241,6 +245,16 @@ function UpdateItem(dt)
     end
 end
 
+------------ EVENTS ------------
+
+function love.keypressed(key, scancode, isrepeat)
+    if (GameState == GameStateEnum.End or GameState == GameStateEnum.Menu) and key == "space" then
+        Reset()
+    end
+end
+
+------------ HELPERS ------------
+
 function SpawnItem()
     local itemId = math.random(1, #(ItemTypes))
     Item.active = true
@@ -275,4 +289,51 @@ end
 
 function Distance(pl1, pl2)
     return math.sqrt((pl1.x - pl2.x) * (pl1.x - pl2.x) + (pl1.y - pl2.y) * (pl1.y - pl2.y))
+end
+
+
+function Reset()
+    for i = 1, #(Players) do
+        Players[i].angle = 0
+        Players[i].power = false
+        Players[i].percent = 0
+        Players[i].pixels = 0
+        Players[i].powerTimer = 0
+    end
+
+    Blue.x = Const.margin
+    Blue.y = Const.margin
+    Blue.velocity = 10
+    Blue.radius = 20
+    Blue.powerTimeout = 45
+    
+    Red.x = Const.width - Const.margin
+    Red.y = Const.margin
+    Red.velocity = 20
+    Red.radius = 12
+    Red.powerTimeout = 5
+
+    Green.x = Const.margin
+    Green.y = Const.height - Const.margin
+    Green.velocity = 10
+    Green.radius = 20
+    Green.powerTimeout = 30
+    
+    Grey.x = Const.width - Const.margin
+    Grey.y = Const.height - Const.margin
+    Grey.velocity = 5
+    Grey.radius = 40
+    Grey.powerTimeout = 15
+
+    Timer.elapsed = 0
+    Timer.value = 60
+
+    GameState = GameStateEnum.Playing
+
+    Winner = ""
+
+    Item.time = Const.framerate * 2
+    Item.active = false
+
+    GameState = GameStateEnum.Playing
 end
