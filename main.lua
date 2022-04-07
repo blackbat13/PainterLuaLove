@@ -246,7 +246,7 @@ function DrawPlayers()
             love.graphics.circle("fill", Players[i].x, Players[i].y, 25)
         end
 
-        love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(Players[i].angle), 1, 1, Players[i].xOffset, Players[i].yOffset)
+        love.graphics.draw(Players[i].drawable, Players[i].x, Players[i].y, math.rad(-Players[i].angle), 1, 1, Players[i].xOffset, Players[i].yOffset)
     end
 end
 
