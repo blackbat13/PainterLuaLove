@@ -119,7 +119,7 @@ function InitMusic()
     Music.game:setLooping(true)
     Music.results:setLooping(true)
 
-    love.audio.play(Music.menu)
+    PlayMusic(Music.menu)
 end
 
 function InitSounds()
@@ -175,6 +175,19 @@ function InitButtons()
             off = love.graphics.newImage("images/sound_off.png")
         }
     }
+
+    MusicButton = {
+        x = Const.width - 100,
+        y = 50,
+        xOffset = 25,
+        yOffset = 25,
+        width = 50,
+        height = 50,
+        drawable = {
+            on = love.graphics.newImage("images/music_on.png"),
+            off = love.graphics.newImage("images/music_off.png")
+        }
+    }
 end
 
 ------------ DRAW ------------
@@ -198,7 +211,8 @@ function love.draw()
         DrawStartButton()
     end
 
-   DrawSoundButton() 
+   DrawSoundButton()
+   DrawMusicButton()
 end
 
 function DrawSoundButton()
@@ -207,6 +221,15 @@ function DrawSoundButton()
         love.graphics.draw(SoundButton.drawable.on, SoundButton.x, SoundButton.y, 0, 1, 1, SoundButton.xOffset, SoundButton.yOffset)
     else
         love.graphics.draw(SoundButton.drawable.off, SoundButton.x, SoundButton.y, 0, 1, 1, SoundButton.xOffset, SoundButton.yOffset)
+    end
+end
+
+function DrawMusicButton()
+    love.graphics.setColor(1, 1, 1, 1)
+    if Settings.music then
+        love.graphics.draw(MusicButton.drawable.on, MusicButton.x, MusicButton.y, 0, 1, 1, MusicButton.xOffset, MusicButton.yOffset)
+    else
+        love.graphics.draw(MusicButton.drawable.off, MusicButton.x, MusicButton.y, 0, 1, 1, MusicButton.xOffset, MusicButton.yOffset)
     end
 end
 
@@ -271,7 +294,8 @@ function DrawMenu()
     DrawCenteredText(Const.width / 2, Const.margin + 6 * textMargin + 3 * paragraphMargin + 2 * textMargin, "Power: up", Fonts.menu)
 
     DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin, "Start: space", Fonts.menu)
-    DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin + 1 * textMargin, "Mute sound: S", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin + 1 * textMargin, "Mute music: M", Fonts.menu)
+    DrawCenteredText(Const.width / 2, Const.margin + 8 * textMargin + 5 * paragraphMargin + 2 * textMargin, "Mute sounds: S", Fonts.menu)
 end
 
 function DrawStartButton()
@@ -332,24 +356,19 @@ function UpdateTimer(dt)
         Timer.value = Timer.value - 1
         Timer.elapsed = Timer.elapsed - 1
 
-        if Settings.sounds then
-            if Timer.value == 20 then
-                love.audio.play(Sounds.hurryUp)
-            end
+        if Timer.value == 20 then
+            PlaySound(Sounds.hurryUp)
+        end
 
-            if Timer.value <= 10 and Timer.value >= 1 then
-                love.audio.play(Sounds.number[Timer.value])
-            end
+        if Timer.value <= 10 and Timer.value >= 1 then
+            PlaySound(Sounds.number[Timer.value])
         end
     end
 
     if Timer.value == 0 then
         GameState = GameStateEnum.End
-        love.audio.stop()
-        if Settings.sounds then
-            love.audio.play(Sounds.timeOver)
-        end
-        love.audio.play(Music.results)
+        PlayMusic(Music.results)
+        PlaySound(Sounds.timeOver)
         ComputeWinner()
     end
 end
@@ -373,6 +392,10 @@ function love.keypressed(key, scancode, isrepeat)
     if key == "s" then
         Settings.sounds = not Settings.sounds
     end
+
+    if key == "m" then
+        SwitchMusic()
+    end
 end
 
 function love.mousepressed(x, y, button, istouch, presses)
@@ -382,6 +405,10 @@ function love.mousepressed(x, y, button, istouch, presses)
 
     if PointInRect(x, y, SoundButton) then
         Settings.sounds = not Settings.sounds
+    end
+
+    if PointInRect(x, y, MusicButton) then
+        SwitchMusic()
     end
 end
 
@@ -468,8 +495,7 @@ function Reset()
 
     GameState = GameStateEnum.Playing
 
-    love.audio.stop()
-    love.audio.play(Music.game)
+    PlayMusic(Music.game)
 
     love.graphics.setCanvas(ColorCanvas)
     love.graphics.clear()
@@ -497,9 +523,7 @@ function CheckPlayerCollisions(player, dt)
         player.x = player.x - math.sin(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
         player.y = player.y - math.cos(math.rad(player.angle + 90)) * player.velocity * dt * Const.framerate
         player.angle = (player.angle + math.random(100, 250)) % 360
-        if Settings.sounds then
-            love.audio.play(Sounds.impact)
-        end
+        PlaySound(Sounds.impact)
     end
 
     for i = 1, #(Players) do
@@ -522,9 +546,7 @@ function PickItem(item, player)
         love.graphics.setColor(love.math.colorFromBytes(player.color))
         love.graphics.circle("fill", player.x, player.y, 250)
         love.graphics.setCanvas()
-        if Settings.sounds then
-            love.audio.play(Sounds.item.bomb)
-        end
+        PlaySound(Sounds.item.bomb)
     end
 
     if item.type == ItemTypeEnum.Star then
@@ -535,23 +557,17 @@ function PickItem(item, player)
         end
 
         love.graphics.setCanvas()
-        if Settings.sounds then
-            love.audio.play(Sounds.item.star)
-        end
+        PlaySound(Sounds.item.star)
     end
 
     if item.type == ItemTypeEnum.Coin then
         player.radius = player.radius + 5
-        if Settings.sounds then
-            love.audio.play(Sounds.item.coin)
-        end
+        PlaySound(Sounds.item.coin)
     end
 
     if item.type == ItemTypeEnum.Gem then
         player.power = true
-        if Settings.sounds then
-            love.audio.play(Sounds.item.gem)
-        end
+        PlaySound(Sounds.item.gem)
     end
 
     item.active = false
@@ -589,7 +605,34 @@ function UsePower(player)
     player.power = false
     player.powerTimer = 0
 
+    PlaySound(Sounds.power)
+end
+
+function PlaySound(sound)
     if Settings.sounds then
-        love.audio.play(Sounds.power)
+        love.audio.play(sound)
+    end
+end
+
+function PlayMusic(music)
+    if Settings.music then
+        love.audio.stop()
+        love.audio.play(music)
+    end
+end
+
+function SwitchMusic()
+    if Settings.music then
+        Settings.music = false
+        love.audio.stop()
+    else
+        Settings.music = true
+        if GameState == GameStateEnum.Menu then
+            PlayMusic(Music.menu)
+        elseif GameState == GameStateEnum.Playing then
+            PlayMusic(Music.game)
+        elseif GameState == GameStateEnum.End then
+            PlayMusic(Music.results)
+        end
     end
 end
