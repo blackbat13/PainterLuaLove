@@ -92,10 +92,10 @@ function InitItem()
     ItemTypeEnum = {Bomb = 1, Coin = 2, Gem = 3, Star = 4}
 
     ItemTypes = {
-        {drawable = love.graphics.newImage("images/bomb.png"), type = ItemTypeEnum.Bomb},
-        {drawable = love.graphics.newImage("images/coin.png"), type = ItemTypeEnum.Coin},
-        {drawable = love.graphics.newImage("images/gem.png"), type = ItemTypeEnum.Gem},
-        {drawable = love.graphics.newImage("images/star.png"), type = ItemTypeEnum.Star}
+        {drawable = love.graphics.newImage("images/bomb.png"), type = ItemTypeEnum.Bomb, prob = 0.30},
+        {drawable = love.graphics.newImage("images/coin.png"), type = ItemTypeEnum.Coin, prob = 0.70},
+        {drawable = love.graphics.newImage("images/gem.png"), type = ItemTypeEnum.Gem, prob = 0.80},
+        {drawable = love.graphics.newImage("images/star.png"), type = ItemTypeEnum.Star, prob = 1.0}
     }
 
     Item = {
@@ -415,12 +415,22 @@ end
 ------------ HELPERS ------------
 
 function SpawnItem()
-    local itemId = math.random(1, #(ItemTypes))
+    local itemId = GetRandomItemId()
     Item.active = true
     Item.drawable = ItemTypes[itemId].drawable
     Item.type = ItemTypes[itemId].type
     Item.x = math.random(Const.margin, Const.width - Const.margin)
     Item.y = math.random(Const.margin, Const.height - Const.margin)
+end
+
+function GetRandomItemId()
+    local rand = math.random()
+
+    for i = 1, #(ItemTypes) do
+        if rand <= ItemTypes[i].prob then
+            return i
+        end
+    end
 end
 
 function ComputeWinner()
