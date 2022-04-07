@@ -608,8 +608,8 @@ function UsePower(player)
     end
 
     if player.name == "Grey" then
-        player.radius = player.radius + 15
-        player.velocity = player.velocity - 1
+        player.radius = player.radius + player.radius * 1/3
+        player.velocity = player.velocity - player.velocity * 1/5
     end
 
     player.power = false
